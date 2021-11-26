@@ -1,7 +1,8 @@
-
 #include "DHT.h"
 #define DHTPIN 2
 #define DHTTYPE DHT11   
+#define RELAYPIN 3
+#define LEDLIGHT 13
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -11,7 +12,9 @@ void setup() {
   Serial.begin(9600);
   Serial.println(F("DHT11 test!"));
 
-   dht.begin();
+  dht.begin();
+  pinMode(RELAYPIN, OUTPUT);
+  pinMode(LEDLIGHT, OUTPUT);
 }
 
 void loop() {
@@ -39,6 +42,14 @@ void loop() {
   Serial.print(F("°C "));
   Serial.print(hif);
   Serial.println(F("°F"));
+  
 
+  if (f > 74) {
+    digitalWrite(RELAYPIN, HIGH);
+    digitalWrite(LEDLIGHT, HIGH);
+  } else {
+    digitalWrite(RELAYPIN, LOW);
+    digitalWrite(LEDLIGHT, LOW);
+  }
   delay(1000);
 }
