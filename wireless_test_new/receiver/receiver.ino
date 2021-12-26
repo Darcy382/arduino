@@ -1,38 +1,40 @@
+/*
+* Arduino Wireless Communication Tutorial
+*       Example 1 - Receiver Code
+*                
+* by Dejan Nedelkovski, www.HowToMechatronics.com
+* 
+* Library: TMRh20/RF24, https://github.com/tmrh20/RF24/
+*/
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-
-RF24 radio(9, 10); // CE, CSN
-
+RF24 radio(7, 8); // CE, CSN
 const byte address[6] = "00001";
-boolean button_state = 0;
-int led_pin = 3;
+float data[3];
 
 void setup() {
-  pinMode(led_pin, OUTPUT);
   Serial.begin(9600);
   radio.begin();
-  radio.openReadingPipe(0, address);   //Setting the address at which we will receive the data
-  radio.setPALevel(RF24_PA_MIN);       //You can set this as minimum or maximum depending on the distance between the transmitter and receiver.
-  radio.startListening();              //This sets the module as receiver
+  radio.openReadingPipe(0, address);
+  radio.setPALevel(RF24_PA_MAX);
+  radio.startListening();
 }
-
 void loop() {
-  if (radio.available())              //Looking for the data.
-  {
-    char text[32] = "";                 //Saving the incoming data
-    radio.read(&text, sizeof(text));    //Reading the data
-    radio.read(&button_state, sizeof(button_state));    //Reading the data
-    if(button_state == HIGH)
-    {
-    digitalWrite(led_pin, HIGH);
-    Serial.println(text);
-    }
-    else
-    {
-    digitalWrite(led_pin, LOW);
-    Serial.println(text);
-    }
+  if (radio.available()) {
+    radio.read(&data, sizeof(data));
+    Serial.print("Temp: ");
+    Serial.print(data[0]);
+    Serial.write(0xC2);  //send degree symbol
+    Serial.write(0xB0);  //send degree symbol
+    Serial.print("F   ");
+    Serial.print("Humidity: ");
+    Serial.print(data[1]); 
+    Serial.print("%   ");
+    Serial.print("Heat Index: ");
+    Serial.print(data[2]);
+    Serial.write(0xC2);  //send degree symbol
+    Serial.write(0xB0);  //send degree symbol
+    Serial.println("F   ");
   }
-    delay(5);
 }
